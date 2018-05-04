@@ -11,41 +11,48 @@ import UIKit
 class InteractiveTransitioning: UIPercentDrivenInteractiveTransition {
     
     weak var navigationController: UINavigationController?
+    weak var transitionContext: UIViewControllerContextTransitioning?
     var shouldCompleteTransition = false
     var transitionInProgress = false
-//    var completionSeed: CGFloat {
-//        return 1 - percentComplete
-//    }
     
-    func attachToViewController(viewController: UIViewController) {
-        navigationController = viewController.navigationController
-        setupGestureRecognizer(view: viewController.view)
+    override func startInteractiveTransition(_ transitionContext: UIViewControllerContextTransitioning) {
+        super.startInteractiveTransition(transitionContext)
+        // Save the transitionContext for later
+        self.transitionContext = transitionContext
     }
     
-    private func setupGestureRecognizer(view: UIView) {
-        view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture)))
+    // MARK: - Custom methods
+    
+    func attach(to navigationController: UINavigationController) {
+        navigationController.view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture)))
+        self.navigationController = navigationController
     }
     
+    /**
+     Returns the offset of the pan gesture recognizer from the edge of the screen as a percentage of the transition container view's width or height. This is the percent completed for the interactive transition.
+     */
+    func percentForGesture(_ gesture: UIPanGestureRecognizer) -> CGFloat {
+        guard let view = gesture.view else { return 0 }
+                
+        let translation = gesture.translation(in: transitionContext?.containerView)
+        let percentage = translation.x / view.bounds.width
+        return percentage
+    }
+
     @objc func handlePanGesture(gestureRecognizer: UIPanGestureRecognizer) {
-        let viewTranslation = gestureRecognizer.translation(in: gestureRecognizer.view!.superview!)
         switch gestureRecognizer.state {
         case .began:
             transitionInProgress = true
             navigationController?.popViewController(animated: true)
         case .changed:
-            //var const = CGFloat(fminf(fmaxf(Float(viewTranslation.x / 200.0), 0.0), 1.0))
-            let const = min(max(viewTranslation.x / 200, 0), 1)
-            shouldCompleteTransition = const > 0.5
-            update(CGFloat(const)) //updateInteractiveTransition(const)
+            update(percentForGesture(gestureRecognizer))
         case .cancelled, .ended:
             transitionInProgress = false
-            if !shouldCompleteTransition || gestureRecognizer.state == .cancelled {
-                cancel()
-            } else {
-                finish()
-            }
+            percentForGesture(gestureRecognizer) >= 0.5 ? finish() : cancel()
         default:
-            break
+            // Something happened. cancel the transition
+            transitionInProgress = false
+            cancel()
         }
     }
     

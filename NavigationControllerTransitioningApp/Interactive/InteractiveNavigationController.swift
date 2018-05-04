@@ -8,7 +8,7 @@
 
 import UIKit
 
-class InteractiveNavigationController: UINavigationController, UIViewControllerTransitioningDelegate, UINavigationControllerDelegate {
+class InteractiveNavigationController: UINavigationController, UINavigationControllerDelegate {
     
     let animatedTransitioning = AnimatedTransitioning()
     let interactiveTransitioning = InteractiveTransitioning()
@@ -33,9 +33,11 @@ class InteractiveNavigationController: UINavigationController, UIViewControllerT
         delegate = self
     }
     
+    // MARK: - UINavigationControllerDelegate
+
     func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         if operation == .push {
-            interactiveTransitioning.attachToViewController(viewController: toVC)
+            interactiveTransitioning.attach(to: self)
         }
 
         animatedTransitioning.reverse = operation == .pop

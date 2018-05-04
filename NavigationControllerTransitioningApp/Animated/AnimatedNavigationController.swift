@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AnimatedNavigationController: UINavigationController, UIViewControllerTransitioningDelegate, UINavigationControllerDelegate {
+class AnimatedNavigationController: UINavigationController, UINavigationControllerDelegate {
     
     let animatedTransitioning = AnimatedTransitioning()
     
@@ -32,6 +32,8 @@ class AnimatedNavigationController: UINavigationController, UIViewControllerTran
         delegate = self
     }
     
+    // MARK: - UINavigationControllerDelegate
+
     func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         animatedTransitioning.reverse = operation == .pop
         return animatedTransitioning
