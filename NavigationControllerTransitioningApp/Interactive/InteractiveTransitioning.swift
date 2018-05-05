@@ -10,11 +10,16 @@ import UIKit
 
 class InteractiveTransitioning: UIPercentDrivenInteractiveTransition {
     
-    weak var navigationController: UINavigationController?
+    let gestureRecognizer: UIPanGestureRecognizer
     weak var transitionContext: UIViewControllerContextTransitioning?
-    var shouldCompleteTransition = false
-    var transitionInProgress = false
     
+    init(gestureRecognizer: UIPanGestureRecognizer) {
+        self.gestureRecognizer = gestureRecognizer
+        super.init()
+        
+        gestureRecognizer.addTarget(self, action: #selector(handlePanGesture))
+    }
+
     override func startInteractiveTransition(_ transitionContext: UIViewControllerContextTransitioning) {
         super.startInteractiveTransition(transitionContext)
         // Save the transitionContext for later
@@ -22,11 +27,6 @@ class InteractiveTransitioning: UIPercentDrivenInteractiveTransition {
     }
     
     // MARK: - Custom methods
-    
-    func attach(to navigationController: UINavigationController) {
-        navigationController.view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture)))
-        self.navigationController = navigationController
-    }
     
     /**
      Returns the offset of the pan gesture recognizer from the edge of the screen as a percentage of the transition container view's width or height. This is the percent completed for the interactive transition.
@@ -42,16 +42,14 @@ class InteractiveTransitioning: UIPercentDrivenInteractiveTransition {
     @objc func handlePanGesture(gestureRecognizer: UIPanGestureRecognizer) {
         switch gestureRecognizer.state {
         case .began:
-            transitionInProgress = true
-            navigationController?.popViewController(animated: true)
+            //.began is managed by navigationController In response to the gesture recognizer transitioning to this state, they will trigger the presentation or dismissal
+            break
         case .changed:
             update(percentForGesture(gestureRecognizer))
         case .cancelled, .ended:
-            transitionInProgress = false
             percentForGesture(gestureRecognizer) >= 0.5 ? finish() : cancel()
         default:
             // Something happened. cancel the transition
-            transitionInProgress = false
             cancel()
         }
     }

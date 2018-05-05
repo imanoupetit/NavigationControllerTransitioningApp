@@ -10,7 +10,12 @@ import UIKit
 
 class AnimatedTransitioning: NSObject, UIViewControllerAnimatedTransitioning {
     
-    var reverse: Bool = false
+    let operation: UINavigationControllerOperation
+    
+    init(operation: UINavigationControllerOperation) {
+        self.operation = operation
+        super.init()
+    }
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.5
@@ -22,7 +27,7 @@ class AnimatedTransitioning: NSObject, UIViewControllerAnimatedTransitioning {
         let fromViewController = transitionContext.viewController(forKey: .from)!
         let toView = toViewController.view!
         let fromView = fromViewController.view!
-        let direction: CGFloat = reverse ? -1 : 1
+        let direction: CGFloat = operation == .pop ? -1 : 1
         let const: CGFloat = -0.005
         
         toView.layer.anchorPoint = CGPoint(x: direction == 1 ? 0 : 1, y: 0.5)

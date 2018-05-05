@@ -10,42 +10,30 @@ import UIKit
 
 class InteractiveNavigationController: UINavigationController, UINavigationControllerDelegate {
     
-    let animatedTransitioning = AnimatedTransitioning()
-    let interactiveTransitioning = InteractiveTransitioning()
+    let gestureRecognizer = UIPanGestureRecognizer()
     
-    override init(rootViewController: UIViewController) {
-        super.init(rootViewController: rootViewController)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        gestureRecognizer.addTarget(self, action: #selector(handlePanGesture))
+        view.addGestureRecognizer(gestureRecognizer)
         delegate = self
     }
     
-    override init(navigationBarClass: AnyClass?, toolbarClass: AnyClass?) {
-        super.init(navigationBarClass: navigationBarClass, toolbarClass: toolbarClass)
-        delegate = self
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        delegate = self
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        delegate = self
+    @objc func handlePanGesture(gestureRecognizer: UIPanGestureRecognizer) {
+        if let _ = topViewController as? OrangeViewController, gestureRecognizer.state == .began {
+            popViewController(animated: true)
+        }
     }
     
     // MARK: - UINavigationControllerDelegate
 
     func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        if operation == .push {
-            interactiveTransitioning.attach(to: self)
-        }
-
-        animatedTransitioning.reverse = operation == .pop
-        return animatedTransitioning
+        return AnimatedTransitioning(operation: operation)
     }
     
     func navigationController(_ navigationController: UINavigationController, interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
-        return interactiveTransitioning.transitionInProgress ? interactiveTransitioning : nil
+        return [UIGestureRecognizerState.began, .changed].contains(gestureRecognizer.state) ? InteractiveTransitioning(gestureRecognizer: gestureRecognizer) : nil
     }
         
     deinit {

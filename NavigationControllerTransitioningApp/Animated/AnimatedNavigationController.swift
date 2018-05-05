@@ -9,34 +9,16 @@
 import UIKit
 
 class AnimatedNavigationController: UINavigationController, UINavigationControllerDelegate {
-    
-    let animatedTransitioning = AnimatedTransitioning()
-    
-    override init(rootViewController: UIViewController) {
-        super.init(rootViewController: rootViewController)
-        delegate = self
-    }
-    
-    override init(navigationBarClass: AnyClass?, toolbarClass: AnyClass?) {
-        super.init(navigationBarClass: navigationBarClass, toolbarClass: toolbarClass)
-        delegate = self
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        delegate = self
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        
+    override func viewDidLoad() {
+        super.viewDidLoad()
         delegate = self
     }
     
     // MARK: - UINavigationControllerDelegate
 
     func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        animatedTransitioning.reverse = operation == .pop
-        return animatedTransitioning
+        return AnimatedTransitioning(operation: operation)
     }
     
     deinit {
