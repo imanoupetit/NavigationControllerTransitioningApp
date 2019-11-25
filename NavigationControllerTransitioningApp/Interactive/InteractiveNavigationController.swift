@@ -28,12 +28,12 @@ class InteractiveNavigationController: UINavigationController, UINavigationContr
     
     // MARK: - UINavigationControllerDelegate
 
-    func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         return AnimatedTransitioning(operation: operation)
     }
     
     func navigationController(_ navigationController: UINavigationController, interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
-        return [UIGestureRecognizerState.began, .changed].contains(gestureRecognizer.state) ? InteractiveTransitioning(gestureRecognizer: gestureRecognizer) : nil
+        return [UIGestureRecognizer.State.began, .changed].contains(gestureRecognizer.state) ? InteractiveTransitioning(gestureRecognizer: gestureRecognizer) : nil
     }
         
     deinit {
